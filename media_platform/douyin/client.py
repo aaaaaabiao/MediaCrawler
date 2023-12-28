@@ -143,7 +143,7 @@ class DOUYINClient:
         # headers["Cookie"] = "s_v_web_id=verify_lol4a8dv_wpQ1QMyP_xemd_4wON_8Yzr_FJa8DN1vdY2m;"
         del headers["Origin"]
         res = await self.get("/aweme/v1/web/aweme/detail/", params, headers)
-        utils.logger.info(f"aweme_detail:{json.dumps(res)}")
+        utils.logger.info(f"get_video_by_id aweme_id:{aweme_id}")
         return res.get("aweme_detail", {})
 
     async def get_video_by_user_id(self, user_id: str) -> Any:
@@ -166,11 +166,15 @@ class DOUYINClient:
             # headers["Cookie"] = "s_v_web_id=verify_lol4a8dv_wpQ1QMyP_xemd_4wON_8Yzr_FJa8DN1vdY2m;"
             del headers["Origin"]
             res = await self.get("/aweme/v1/web/aweme/post", params, headers)
-            aweme_list.extend(res['aweme_list'])
+            aweme_list = res['aweme_list']
             max_cursor = res['max_cursor']
             has_more = res["has_more"]
             utils.logger.info(
                 f"user_id_aweme_detail: max_cursor:{utils.get_time_str_from_unix_time(max_cursor)}, total:{len(aweme_list)}")
+            for aweme in aweme_list:
+                aweme_id = aweme['aweme_id']
+                aweme_detail = await self.get_video_by_id(aweme_id)
+                aweme_list.extend(aweme_detail)
             if has_more != 1:
                 break
         return {
