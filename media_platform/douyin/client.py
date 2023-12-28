@@ -12,6 +12,7 @@ from var import request_keyword_var
 
 from .exception import *
 from .field import *
+import json
 
 
 class DOUYINClient:
@@ -144,6 +145,30 @@ class DOUYINClient:
         res = await self.get("/aweme/v1/web/aweme/detail/", params, headers)
         utils.logger.info(f"aweme_detail:{json.dumps(res)}")
         return res.get("aweme_detail", {})
+
+
+    async def get_video_by_user_id(self, user_id: str) -> Any:
+        """
+        DouYin Video Detail API
+        :param aweme_id:
+        :return:
+        """
+        aweme_list = []
+        params = {
+            "sec_user_id": user_id,
+            "max_cursor": 0,
+            "count": 18
+        }
+        headers = copy.copy(self.headers)
+        # headers["Cookie"] = "s_v_web_id=verify_lol4a8dv_wpQ1QMyP_xemd_4wON_8Yzr_FJa8DN1vdY2m;"
+        del headers["Origin"]
+        res = await self.get("/aweme/v1/web/aweme/post", params, headers)
+        utils.logger.info(f"user_id_aweme_detail:{json.dumps(res)}")
+        aweme_list.extend(res['aweme_list'])
+        return {
+            "user_id": user_id,
+            "awemes": aweme_list
+        }
 
     async def get_aweme_comments(self, aweme_id: str, cursor: int = 0):
         """get note comments

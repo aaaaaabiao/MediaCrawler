@@ -74,6 +74,8 @@ class DouYinCrawler(AbstractCrawler):
             elif self.crawler_type == "detail":
                 # Get the information and comments of the specified post
                 await self.get_specified_awemes()
+            elif self.crawler_type == 'user':
+                await self.get_specified_user()
 
             utils.logger.info("[DouYinCrawler.start] Douyin Crawler finished ...")
 
@@ -115,6 +117,20 @@ class DouYinCrawler(AbstractCrawler):
                 await douyin.update_douyin_aweme(aweme_detail)
         await self.batch_get_note_comments(config.DY_SPECIFIED_ID_LIST)
 
+    async def get_specified_user(self):
+        """Get the information and comments of the specified post"""
+        semaphore = asyncio.Semaphore(config.MAX_CONCURRENCY_NUM)
+        task_list = [
+            self.get_user_aweme_detail(user_id=user_id, semaphore=semaphore) for user_id in config.DY_SPECIFIED_USER_ID_LIST
+        ]
+        user_aweme_details = await asyncio.gather(*task_list)
+        for user_aweme_detail in user_aweme_details:
+            if user_aweme_detail is not None:
+                await douyin.update_dy_user_awemes(user_aweme_detail['user_id'], user_aweme_detail['awemes'])
+        # await self.batch_get_note_comments(config.DY_SPECIFIED_ID_LIST)
+
+
+
     async def get_aweme_detail(self, aweme_id: str, semaphore: asyncio.Semaphore) -> Any:
         """Get note detail"""
         async with semaphore:
@@ -125,6 +141,18 @@ class DouYinCrawler(AbstractCrawler):
                 return None
             except KeyError as ex:
                 utils.logger.error(f"[DouYinCrawler.get_aweme_detail] have not fund note detail aweme_id:{aweme_id}, err: {ex}")
+                return None
+
+    async def get_user_aweme_detail(self, user_id: str, semaphore: asyncio.Semaphore) -> Any:
+        """Get note detail"""
+        async with semaphore:
+            try:
+                return await self.dy_client.get_video_by_user_id(user_id)
+            except DataFetchError as ex:
+                utils.logger.error(f"[DouYinCrawler.get_user_aweme_detail] Get aweme detail error: {ex}")
+                return None
+            except KeyError as ex:
+                utils.logger.error(f"[DouYinCrawler.get_user_aweme_detail] have not fund note detail user_id:{user_id}, err: {ex}")
                 return None
 
     async def batch_get_note_comments(self, aweme_list: List[str]) -> None:

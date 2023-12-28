@@ -9,8 +9,10 @@ import re
 from io import BytesIO
 from typing import Dict, List, Optional, Tuple
 
+import qrcode.main
 from PIL import Image, ImageDraw
 from playwright.async_api import Cookie, Page
+from pyzbar.pyzbar import decode
 
 
 async def find_login_qrcode(page: Page, selector: str) -> str:
@@ -40,6 +42,20 @@ def show_qrcode(qr_code) -> None:  # type: ignore
     draw = ImageDraw.Draw(new_image)
     draw.rectangle((0, 0, width + 19, height + 19), outline=(0, 0, 0), width=1)
     new_image.show()
+
+def headless_show_qrcode(qr_code):
+    qr_code = qr_code.split(",")[1]
+    qr_code = base64.b64decode(qr_code)
+    image = Image.open(BytesIO(qr_code))
+    barcodes = decode(image)
+    barcode_url = ''
+    for barcode in barcodes:
+        # 提取条形码或二维码信息
+        barcode_url = barcode.data.decode('utf-8')
+    print(barcode_url)
+    qr = qrcode.main.QRCode()
+    qr.add_data(barcode_url)
+    qr.print_tty()
 
 
 def get_user_agent() -> str:

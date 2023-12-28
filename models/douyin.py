@@ -9,6 +9,7 @@ from tortoise.models import Model
 import config
 from tools import utils
 from var import crawler_type_var
+import json
 
 
 class DouyinBaseModel(Model):
@@ -62,6 +63,13 @@ class DouyinAwemeComment(DouyinBaseModel):
     def __str__(self):
         return f"{self.comment_id} - {self.content}"
 
+
+async def update_dy_user_awemes(user_id: str, awemes: List):
+    pathlib.Path(f"data/dy").mkdir(parents=True, exist_ok=True)
+    save_file_name = f"data/dy/{crawler_type_var.get()}_awemes_{utils.get_current_date()}_{user_id}.json"
+    with open(save_file_name, mode='a', encoding="utf-8") as f:
+        for aweme in awemes:
+            f.write(json.dumps(aweme) + "\n")
 
 async def update_douyin_aweme(aweme_item: Dict):
     aweme_id = aweme_item.get("aweme_id")

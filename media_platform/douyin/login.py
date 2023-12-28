@@ -103,15 +103,12 @@ class DouYinLogin(AbstractLogin):
 
         # show login qrcode
         # utils.show_qrcode(base64_qrcode_img)
-        partial_show_qrcode = functools.partial(utils.show_qrcode, base64_qrcode_img)
-        asyncio.get_running_loop().run_in_executor(executor=None, func=partial_show_qrcode)
-        utils.show_qrcode(base64_qrcode_img)
-
-        # import qrcode
-        # qr = qrcode.QRCode(version=1)
-        # qr.add_data(base64_qrcode_img)
-        # qr.print_ascii(invert=True)
-
+        if config.HEADLESS:
+            utils.headless_show_qrcode(base64_qrcode_img)
+        else:
+            partial_show_qrcode = functools.partial(utils.show_qrcode, base64_qrcode_img)
+            asyncio.get_running_loop().run_in_executor(executor=None, func=partial_show_qrcode)
+            utils.show_qrcode(base64_qrcode_img)
         await asyncio.sleep(2)
 
     async def login_by_mobile(self):

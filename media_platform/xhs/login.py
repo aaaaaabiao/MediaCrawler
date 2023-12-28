@@ -158,8 +158,15 @@ class XHSLogin(AbstractLogin):
         # fix issue #12
         # we need to use partial function to call show_qrcode function and run in executor
         # then current asyncio event loop will not be blocked
-        partial_show_qrcode = functools.partial(utils.show_qrcode, base64_qrcode_img)
-        asyncio.get_running_loop().run_in_executor(executor=None, func=partial_show_qrcode)
+
+        if config.HEADLESS:
+            utils.headless_show_qrcode(base64_qrcode_img)
+        else:
+            partial_show_qrcode = functools.partial(utils.show_qrcode, base64_qrcode_img)
+            asyncio.get_running_loop().run_in_executor(executor=None, func=partial_show_qrcode)
+        await asyncio.sleep(2)
+
+
 
         utils.logger.info(f"[XHSLogin.login_by_qrcode] waiting for scan code login, remaining time is 120s")
         try:
