@@ -11,6 +11,8 @@ from tools import utils
 from .exception import DataFetchError, IPBlockError
 from .field import SearchNoteType, SearchSortType
 from .help import get_search_id, sign
+import requests
+from lxml import etree
 
 
 class XHSClient:
@@ -125,6 +127,48 @@ class XHSClient:
         }
         return await self.post(uri, data)
 
+    async def get_note_id_by_user_id(self, user_id) -> Dict:
+        note_info_list = []
+        cursor = await self.get_first_id_home_page(user_id)
+        while True:
+            params = {"user_id": user_id,
+                      "num": 30,
+                      "cursor": cursor,
+                      "image_formats": "jpg,webp,avif"}
+            uri = "/api/sns/web/v1/user_posted"
+            res = await self.get(uri, params)
+            utils.logger.info(f"[XHSClient.get_note_id_by_user_id] res:{json.dumps(res)}")
+            has_more = res['has_more']
+            cursor = res['cursor']
+            notes = res['notes']
+
+            for note in notes:
+                note_id = note['note_id']
+                res = await self.get_note_by_id(note_id)
+                note_info_list.append(res)
+            if not has_more:
+                break
+        return {
+            "user_id": user_id,
+            "notes": note_info_list
+        }
+
+    async def get_first_id_home_page(self, user_id) -> str:
+        uri = f"https://www.xiaohongshu.com/user/profile/{user_id}"
+        headers = {
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+        res_html = requests.get(uri, headers=headers).content
+        tree = etree.HTML(res_html)
+        # home_json = tree.xpath('/html/body/script[3]/text()')[0].replace("window.__INITIAL_STATE__ = ", "")
+        home_json_str = tree.xpath('/html/body/script[3]')[0].text
+        home_json = home_json_str.replace("window.__INITIAL_STATE__=", "").replace("undefined", "0")
+        utils.logger.info(f"[XHSClient.get_first_id_home_page] home_json:{home_json}")
+        home_json_dict = json.loads(home_json)
+        notes = home_json_dict['user']['notes']
+        first_id = notes[0][0]['id']
+        return first_id
+
     async def get_note_by_id(self, note_id: str) -> Dict:
         """
         :param note_id: note_id you want to fetch
@@ -135,6 +179,7 @@ class XHSClient:
         res = await self.post(uri, data)
         if res and res.get("items"):
             res_dict: Dict = res["items"][0]["note_card"]
+            utils.logger.info(f"[XHSClient.get_note_by_id] get note and res:{json.dumps(res)}")
             return res_dict
         utils.logger.error(f"[XHSClient.get_note_by_id] get note empty and res:{res}")
         return dict()

@@ -84,6 +84,8 @@ class XiaoHongShuCrawler(AbstractCrawler):
             elif self.crawler_type == "detail":
                 # Get the information and comments of the specified post
                 await self.get_specified_notes()
+            elif self.crawler_type == "user":
+                await self.get_user_notes()
             else:
                 pass
 
@@ -128,12 +130,24 @@ class XiaoHongShuCrawler(AbstractCrawler):
         for note_detail in note_details:
             if note_detail is not None:
                 await xhs_model.update_xhs_note(note_detail)
-        await self.batch_get_note_comments(config.XHS_SPECIFIED_ID_LIST)
+
+    async def get_user_notes(self):
+        semaphore = asyncio.Semaphore(config.MAX_CONCURRENCY_NUM)
+        task_list = [
+            self.get_user_note_detail(user_id=user_id, semaphore=semaphore) for user_id in config.XHS_USER_ID_LIST
+        ]
+        user_note_details = await asyncio.gather(*task_list)
+        for user_note_detail in user_note_details:
+            if user_note_detail is not None:
+                await xhs_model.update_xhs_user_note(user_note_detail['user_id'], user_note_detail['notes'])
+        # await self.batch_get_note_comments(config.XHS_SPECIFIED_ID_LIST)
+
 
     async def get_note_detail(self, note_id: str, semaphore: asyncio.Semaphore) -> Optional[Dict]:
         """Get note detail"""
         async with semaphore:
             try:
+                # await self.xhs_client.get_note_id_by_user_id()
                 return await self.xhs_client.get_note_by_id(note_id)
             except DataFetchError as ex:
                 utils.logger.error(f"[XiaoHongShuCrawler.get_note_detail] Get note detail error: {ex}")
@@ -141,6 +155,19 @@ class XiaoHongShuCrawler(AbstractCrawler):
             except KeyError as ex:
                 utils.logger.error(f"[XiaoHongShuCrawler.get_note_detail] have not fund note detail note_id:{note_id}, err: {ex}")
                 return None
+
+    async def get_user_note_detail(self, user_id: str, semaphore: asyncio.Semaphore) -> Optional[Dict]:
+        """Get note detail"""
+        async with semaphore:
+            try:
+                return await self.xhs_client.get_note_id_by_user_id(user_id)
+            except DataFetchError as ex:
+                utils.logger.error(f"[XiaoHongShuCrawler.get_user_note_detail] Get note detail error: {ex}")
+                return None
+            except KeyError as ex:
+                utils.logger.error(f"[XiaoHongShuCrawler.get_user_note_detail] have not fund note detail user_id:{user_id}, err: {ex}")
+                return None
+
 
     async def batch_get_note_comments(self, note_list: List[str]):
         """Batch get note comments"""

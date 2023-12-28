@@ -1,4 +1,5 @@
 import csv
+import json
 import pathlib
 from typing import Dict, List
 
@@ -61,6 +62,13 @@ class XHSNoteComment(XhsBaseModel):
         return f"{self.comment_id} - {self.content}"
 
 
+async def update_xhs_user_note(user_id: str, notes: List):
+    pathlib.Path(f"data/xhs").mkdir(parents=True, exist_ok=True)
+    save_file_name = f"data/xhs/{crawler_type_var.get()}_notes_{utils.get_current_date()}_{user_id}.json"
+    with open(save_file_name, mode='a', encoding="utf-8") as f:
+        for note in notes:
+            f.write(json.dumps(note) + "\n")
+
 async def update_xhs_note(note_item: Dict):
     note_id = note_item.get("note_id")
     user_info = note_item.get("user", {})
@@ -86,7 +94,7 @@ async def update_xhs_note(note_item: Dict):
         "last_modify_ts": utils.get_current_timestamp(),
         "note_url": f"https://www.xiaohongshu.com/explore/{note_id}"
     }
-    utils.logger.info(f"[models.xiaohongshu.update_xhs_note] xhs note: {local_db_item}")
+    utils.logger.info(f"[models.xiaohongshu.update_xhs_note] xhs note: {json.dumps(local_db_item)}")
     if config.IS_SAVED_DATABASED:
         if not await XHSNote.filter(note_id=note_id).first():
             local_db_item["add_ts"] = utils.get_current_timestamp()

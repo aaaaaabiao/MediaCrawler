@@ -142,6 +142,7 @@ class DOUYINClient:
         # headers["Cookie"] = "s_v_web_id=verify_lol4a8dv_wpQ1QMyP_xemd_4wON_8Yzr_FJa8DN1vdY2m;"
         del headers["Origin"]
         res = await self.get("/aweme/v1/web/aweme/detail/", params, headers)
+        utils.logger.info(f"aweme_detail:{json.dumps(res)}")
         return res.get("aweme_detail", {})
 
     async def get_aweme_comments(self, aweme_id: str, cursor: int = 0):
