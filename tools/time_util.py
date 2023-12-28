@@ -102,5 +102,6 @@ def rfc2822_to_timestamp(rfc2822_time):
 
 if __name__ == '__main__':
     # 示例用法
-    _rfc2822_time = "Sat Dec 23 17:12:54 +0800 2023"
-    print(rfc2822_to_china_datetime(_rfc2822_time))
+    # _rfc2822_time = "Sat Dec 23 17:12:54 +0800 2023"
+    # print(rfc2822_to_china_datetime(_rfc2822_time))
+    print(get_time_str_from_unix_time(1535184264000))

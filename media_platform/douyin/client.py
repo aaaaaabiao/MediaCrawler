@@ -146,7 +146,6 @@ class DOUYINClient:
         utils.logger.info(f"aweme_detail:{json.dumps(res)}")
         return res.get("aweme_detail", {})
 
-
     async def get_video_by_user_id(self, user_id: str) -> Any:
         """
         DouYin Video Detail API
@@ -170,17 +169,14 @@ class DOUYINClient:
             aweme_list.extend(res['aweme_list'])
             max_cursor = res['max_cursor']
             has_more = res["has_more"]
-            utils.logger.info(f"user_id_aweme_detail: max_cursor:{max_cursor}, total:{len(aweme_list)}")
+            utils.logger.info(
+                f"user_id_aweme_detail: max_cursor:{utils.get_time_str_from_unix_time(max_cursor)}, total:{len(aweme_list)}")
             if has_more != 1:
                 break
         return {
             "user_id": user_id,
             "awemes": aweme_list
         }
-
-
-
-
 
     async def get_aweme_comments(self, aweme_id: str, cursor: int = 0):
         """get note comments
