@@ -154,7 +154,7 @@ class DOUYINClient:
         """
 
         max_cursor = 0
-        aweme_list = []
+        aweme_res = []
 
         while True:
             params = {
@@ -175,14 +175,14 @@ class DOUYINClient:
                 try:
                     aweme_id = aweme['aweme_id']
                     aweme_detail = await self.get_video_by_id(aweme_id)
-                    aweme_list.extend(aweme_detail)
+                    aweme_res.append(aweme_detail)
                 except Exception as ex:
-                    utils.logger.error(f"[DOUYINClient.get_video_by_user_id] error, ex:{ex}")
+                    utils.logger.error(f"[DOUYINClient.get_video_by_user_id] error, ex:{ex}, aweme:{aweme}")
             if has_more != 1:
                 break
         return {
             "user_id": user_id,
-            "awemes": aweme_list
+            "awemes": aweme_res
         }
 
     async def get_aweme_comments(self, aweme_id: str, cursor: int = 0):

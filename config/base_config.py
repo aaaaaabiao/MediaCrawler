@@ -3,6 +3,8 @@ PLATFORM = "dy"
 KEYWORDS = "python,golang"
 LOGIN_TYPE = "qrcode"  # qrcode or phone or cookie
 COOKIES = "abRequestId=ea50858d-dfc4-57e3-86ab-1ffeccd7276f; a1=18c5bf0ed9deddlk5ts5qxej2x23jypp545brjjqn30000182415; webId=a2c5bc7e83fc8cc41a12067b77fa659f; gid=yYS2Di8i282jyYS2Di8df4VVjfdff1T29M2A2AICdVJCJDq8qVvUUF888yYJ4y28KKfiK4Jf; webBuild=3.21.2; web_session=0400697c486075066853e4bdbe374b1a432e82; websectiga=3fff3a6f9f07284b62c0f2ebf91a3b10193175c06e4f71492b60e056edcdebb2; sec_poison_id=15868c15-71f3-4edb-a7d5-c892644674b0; xsecappid=xhs-pc-web; unread={%22ub%22:%226583c47a000000000801f606%22%2C%22ue%22:%226586553d0000000038030e41%22%2C%22uc%22:21}"
+DY_COOKIES = ""
+XHS_COOKIES = ""
 CRAWLER_TYPE = "detail"
 
 # 是否开启 IP 代理

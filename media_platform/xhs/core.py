@@ -72,7 +72,7 @@ class XiaoHongShuCrawler(AbstractCrawler):
                     login_phone="",  # input your phone number
                     browser_context=self.browser_context,
                     context_page=self.context_page,
-                    cookie_str=config.COOKIES
+                    cookie_str=config.XHS_COOKIES
                 )
                 await login_obj.begin()
                 await self.xhs_client.update_cookies(browser_context=self.browser_context)
