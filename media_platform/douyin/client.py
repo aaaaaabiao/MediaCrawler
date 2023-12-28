@@ -172,9 +172,10 @@ class DOUYINClient:
             utils.logger.info(
                 f"user_id_aweme_detail: max_cursor:{utils.get_time_str_from_unix_time(max_cursor)}, total:{len(aweme_list)}")
             for aweme in aweme_list:
-                aweme_id = aweme['aweme_id']
-                aweme_detail = await self.get_video_by_id(aweme_id)
-                aweme_list.extend(aweme_detail)
+                if 'aweme_id' in aweme.keys():
+                    aweme_id = aweme['aweme_id']
+                    aweme_detail = await self.get_video_by_id(aweme_id)
+                    aweme_list.extend(aweme_detail)
             if has_more != 1:
                 break
         return {
