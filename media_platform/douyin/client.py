@@ -170,7 +170,7 @@ class DOUYINClient:
             max_cursor = res['max_cursor']
             has_more = res["has_more"]
             utils.logger.info(
-                f"user_id_aweme_detail: max_cursor:{utils.get_time_str_from_unix_time(max_cursor)}, total:{len(aweme_list)}")
+                f"user_id_aweme_detail: max_cursor:{utils.get_time_str_from_unix_time(max_cursor)}, total:{len(aweme_res)}")
             for aweme in aweme_list:
                 try:
                     aweme_id = aweme['aweme_id']

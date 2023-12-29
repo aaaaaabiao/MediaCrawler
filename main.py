@@ -37,7 +37,7 @@ async def main():
     parser.add_argument('--lt', type=str, help='Login type (qrcode | phone | cookie)',
                         choices=["qrcode", "phone", "cookie"], default=config.LOGIN_TYPE)
     parser.add_argument('--type', type=str, help='crawler type (search | detail)',
-                        choices=["search", "detail"], default=config.CRAWLER_TYPE)
+                        choices=["search", "detail", "user"], default=config.CRAWLER_TYPE)
 
     # init db
     if config.IS_SAVED_DATABASED:
