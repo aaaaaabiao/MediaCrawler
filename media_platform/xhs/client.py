@@ -137,7 +137,7 @@ class XHSClient:
                       "image_formats": "jpg,webp,avif"}
             uri = "/api/sns/web/v1/user_posted"
             res = await self.get(uri, params)
-            utils.logger.info(f"[XHSClient.get_note_id_by_user_id] res:{json.dumps(res)}")
+            utils.logger.info(f"[XHSClient.get_note_id_by_user_id] user_id:{user_id}, cursor:{cursor}, res_size:{len(note_info_list)}")
             has_more = res['has_more']
             cursor = res['cursor']
             notes = res['notes']
@@ -145,6 +145,8 @@ class XHSClient:
             for note in notes:
                 note_id = note['note_id']
                 res = await self.get_note_by_id(note_id)
+                note_comment_res = await self.get_note_comments(note_id)
+                res['comments'] = note_comment_res
                 note_info_list.append(res)
             if not has_more:
                 break
@@ -181,7 +183,7 @@ class XHSClient:
             res_dict: Dict = res["items"][0]["note_card"]
             utils.logger.info(f"[XHSClient.get_note_by_id] get note and res:{json.dumps(res)}")
             return res_dict
-        utils.logger.error(f"[XHSClient.get_note_by_id] get note empty and res:{res}")
+        utils.logger.error(f"[XHSClient.get_note_by_id] get note empty and note_id:{note_id}, res:{res}")
         return dict()
 
     async def get_note_comments(self, note_id: str, cursor: str = "") -> Dict:

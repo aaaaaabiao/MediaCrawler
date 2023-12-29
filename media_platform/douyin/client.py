@@ -175,6 +175,8 @@ class DOUYINClient:
                 try:
                     aweme_id = aweme['aweme_id']
                     aweme_detail = await self.get_video_by_id(aweme_id)
+                    aweme_commit = await self.get_aweme_comments(aweme_id)
+                    aweme_detail['aweme_commit'] = aweme_commit
                     aweme_res.append(aweme_detail)
                 except Exception as ex:
                     utils.logger.error(f"[DOUYINClient.get_video_by_user_id] error, ex:{ex}, aweme:{aweme}")
