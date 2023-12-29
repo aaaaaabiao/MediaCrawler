@@ -181,7 +181,7 @@ class XHSClient:
         res = await self.post(uri, data)
         if res and res.get("items"):
             res_dict: Dict = res["items"][0]["note_card"]
-            utils.logger.info(f"[XHSClient.get_note_by_id] get note and res:{json.dumps(res)}")
+            # utils.logger.info(f"[XHSClient.get_note_by_id] get note and res:{json.dumps(res)}")
             return res_dict
         utils.logger.error(f"[XHSClient.get_note_by_id] get note empty and note_id:{note_id}, res:{res}")
         return dict()

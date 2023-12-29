@@ -62,7 +62,7 @@ class WeiboLogin(AbstractLogin):
 
         # click login button
         login_button_ele = self.context_page.locator(
-            "xpath=//div[@class='right-entry__outside go-login-btn']//div"
+            "xpath=//*[@id='app']/div[1]/div[3]/a"
         )
         await login_button_ele.click()
 

@@ -14,6 +14,7 @@ from tortoise.models import Model
 import config
 from tools import utils
 from var import crawler_type_var
+import json
 
 
 class WeiboBaseModel(Model):
@@ -64,6 +65,13 @@ class WeiboComment(WeiboBaseModel):
 
     def __str__(self):
         return f"{self.comment_id}"
+
+async def update_dy_user_note(user_id: str, notes: List):
+    pathlib.Path(f"data/wb").mkdir(parents=True, exist_ok=True)
+    save_file_name = f"data/wb/{crawler_type_var.get()}_notes_{utils.get_current_date()}_{user_id}.json"
+    with open(save_file_name, mode='a', encoding="utf-8") as f:
+        for note in notes:
+            f.write(json.dumps(note) + "\n")
 
 
 async def update_weibo_note(note_item: Dict):

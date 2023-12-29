@@ -74,7 +74,7 @@ class WeiboCrawler(AbstractCrawler):
                     login_phone="",  # your phone number
                     browser_context=self.browser_context,
                     context_page=self.context_page,
-                    cookie_str=config.COOKIES
+                    cookie_str=config.WB_COOKIE
                 )
                 await login_obj.begin()
                 await self.wb_client.update_cookies(browser_context=self.browser_context)
@@ -86,6 +86,8 @@ class WeiboCrawler(AbstractCrawler):
             elif self.crawler_type == "detail":
                 # Get the information and comments of the specified post
                 await self.get_specified_notes()
+            elif self.crawler_type == "user":
+                await self.get_specified_user_note();
             else:
                 pass
             utils.logger.info("[WeiboCrawler.start] Bilibili Crawler finished ...")
@@ -151,6 +153,42 @@ class WeiboCrawler(AbstractCrawler):
                 utils.logger.error(
                     f"[WeiboCrawler.get_note_info_task] have not fund note detail note_id:{note_id}, err: {ex}")
                 return None
+
+    async def get_specified_user_note(self):
+        """
+        get specified notes info
+        :return:
+        """
+        semaphore = asyncio.Semaphore(config.MAX_CONCURRENCY_NUM)
+        task_list = [
+            self.get_user_note_info_task(user_id=user_id, semaphore=semaphore) for user_id in config.WEIBO_SPECIFIED_USER_ID_LIST
+        ]
+        video_details = await asyncio.gather(*task_list)
+        for note_item in video_details:
+            if note_item:
+                await weibo.update_dy_user_note(note_item['user_id'], note_item['notes'])
+        # await self.batch_get_notes_comments(config.WEIBO_SPECIFIED_ID_LIST)
+
+
+    async def get_user_note_info_task(self, user_id: str, semaphore: asyncio.Semaphore) -> Optional[Dict]:
+        """
+        Get note detail task
+        :param note_id:
+        :param semaphore:
+        :return:
+        """
+        async with semaphore:
+            try:
+                result = await self.wb_client.get_note_info_by_user_id(user_id)
+                return result
+            except DataFetchError as ex:
+                utils.logger.error(f"[WeiboCrawler.get_user_note_info_task] Get note detail error: {ex}")
+                return None
+            except KeyError as ex:
+                utils.logger.error(
+                    f"[WeiboCrawler.get_user_note_info_task] have not fund note detail note_id:{user_id}, err: {ex}")
+                return None
+
 
     async def batch_get_notes_comments(self, note_id_list: List[str]):
         """

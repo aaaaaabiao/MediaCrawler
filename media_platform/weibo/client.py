@@ -176,3 +176,32 @@ class WeiboClient:
             else:
                 utils.logger.info(f"[WeiboClient.get_note_info_by_id] 未找到$render_data的值")
                 return dict()
+
+    async def get_note_info_by_user_id(self, user_id: str) -> Dict:
+        """
+        根据帖子ID获取详情
+        :param user_id:
+        :return:
+        """
+        notes = []
+        uri = "/api/container/getIndex"
+        container_id = f"230413{user_id}_-_WEIBO_SECOND_PROFILE_WEIBO"
+        since_id = ""
+        while True:
+            params = {
+                "containerid": container_id,
+                "page_type": "03",
+                "since_id": since_id,
+            }
+            ret = await self.get(uri, params)
+            notes.extend(ret['cards'])
+            utils.logger.info(f"[WeiboClient.get_note_info_by_user_id] since_id:{since_id}, total:{len(notes)}")
+            cardlistInfo = ret['cardlistInfo']
+            if 'since_id' not in cardlistInfo.keys():
+                break
+            since_id = cardlistInfo['since_id']
+            await asyncio.sleep(1.0)
+        return {
+            "user_id": user_id,
+            "notes": notes
+        }
