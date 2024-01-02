@@ -159,7 +159,7 @@ class WeiboCrawler(AbstractCrawler):
         get specified notes info
         :return:
         """
-        semaphore = asyncio.Semaphore(config.MAX_CONCURRENCY_NUM)
+        semaphore = asyncio.Semaphore(1)
         task_list = [
             self.get_user_note_info_task(user_id=user_id, semaphore=semaphore) for user_id in config.WEIBO_SPECIFIED_USER_ID_LIST
         ]
