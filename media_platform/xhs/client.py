@@ -129,7 +129,8 @@ class XHSClient:
 
     async def get_note_id_by_user_id(self, user_id) -> Dict:
         note_info_list = []
-        cursor = await self.get_first_id_home_page(user_id)
+        # cursor = await self.get_first_id_home_page(user_id)
+        cursor = ""
         while True:
             params = {"user_id": user_id,
                       "num": 30,
@@ -137,7 +138,7 @@ class XHSClient:
                       "image_formats": "jpg,webp,avif"}
             uri = "/api/sns/web/v1/user_posted"
             res = await self.get(uri, params)
-            utils.logger.info(f"[XHSClient.get_note_id_by_user_id] user_id:{user_id}, cursor:{cursor}, res_size:{len(note_info_list)}")
+            utils.logger.info(f"[XHSClient.get_note_id_by_user_id] user_id:{user_id}, cursor:{cursor}, res_size:{len(res)}")
             has_more = res['has_more']
             cursor = res['cursor']
             notes = res['notes']
