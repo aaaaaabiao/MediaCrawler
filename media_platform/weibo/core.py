@@ -276,6 +276,8 @@ class WeiboCrawler(AbstractCrawler):
         httpx_proxy = {
             f"{ip_proxy_info.protocol}{ip_proxy_info.ip}": f"{ip_proxy_info.protocol}{ip_proxy_info.ip}:{ip_proxy_info.port}"
         }
+
+        print(httpx_proxy)
         return playwright_proxy, httpx_proxy
 
     async def launch_browser(

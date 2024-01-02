@@ -10,7 +10,7 @@ from playwright.async_api import (BrowserContext, BrowserType, Page,
 import config
 from base.base_crawler import AbstractCrawler
 from models import xiaohongshu as xhs_model
-from proxy.proxy_ip_pool import IpInfoModel, create_ip_pool
+from proxy.proxy_ip_pool import IpInfoModel, create_ip_pool, random_get_proxy
 from tools import utils
 from var import crawler_type_var
 
@@ -39,8 +39,8 @@ class XiaoHongShuCrawler(AbstractCrawler):
     async def start(self) -> None:
         playwright_proxy_format, httpx_proxy_format = None, None
         if config.ENABLE_IP_PROXY:
-            ip_proxy_pool = await create_ip_pool(config.IP_PROXY_POOL_COUNT, enable_validate_ip=True)
-            ip_proxy_info: IpInfoModel = await ip_proxy_pool.get_proxy()
+            # ip_proxy_pool = await create_ip_pool(config.IP_PROXY_POOL_COUNT, enable_validate_ip=True)
+            ip_proxy_info: IpInfoModel = await random_get_proxy()
             playwright_proxy_format, httpx_proxy_format = self.format_proxy_info(ip_proxy_info)
 
         async with async_playwright() as playwright:
@@ -212,7 +212,7 @@ class XiaoHongShuCrawler(AbstractCrawler):
             "password": ip_proxy_info.password,
         }
         httpx_proxy = {
-            f"{ip_proxy_info.protocol}{ip_proxy_info.ip}":f"{ip_proxy_info.protocol}{ip_proxy_info.user}:{ip_proxy_info.password}@{ip_proxy_info.ip}:{ip_proxy_info.port}"
+            f"{ip_proxy_info.protocol}{ip_proxy_info.ip}":f"{ip_proxy_info.protocol}{ip_proxy_info.ip}:{ip_proxy_info.port}"
         }
         return playwright_proxy, httpx_proxy
 
