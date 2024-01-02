@@ -138,7 +138,7 @@ class XHSClient:
                       "image_formats": "jpg,webp,avif"}
             uri = "/api/sns/web/v1/user_posted"
             res = await self.get(uri, params)
-            utils.logger.info(f"[XHSClient.get_note_id_by_user_id] user_id:{user_id}, cursor:{cursor}, res_size:{len(res)}")
+            utils.logger.info(f"[XHSClient.get_note_id_by_user_id] user_id:{user_id}, cursor:{cursor}, res_size:{len(note_info_list)}")
             has_more = res['has_more']
             cursor = res['cursor']
             notes = res['notes']
