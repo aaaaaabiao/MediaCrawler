@@ -69,6 +69,23 @@ class ProxyIpPool:
         self.proxy_list.remove(proxy)
         return proxy
 
+    async def get_proxy_v1(self) -> IpInfoModel:
+        """
+        从代理池中随机提取一个代理IP
+        :return:
+        """
+        if len(self.proxy_list) == 0:
+            await self.reload_proxies()
+
+        proxy = random.choice(self.proxy_list)
+        if self.enable_validate_ip:
+            if not await self.is_valid_proxy(proxy):
+                raise Exception("[ProxyIpPool.get_proxy] current ip invalid and again get it")
+        self.proxy_list.remove(proxy)
+        return proxy
+
+
+
     async def reload_proxies(self):
         """
         # 重新加载代理池
@@ -88,6 +105,30 @@ async def create_ip_pool(ip_pool_count: int, enable_validate_ip) -> ProxyIpPool:
     pool = ProxyIpPool(ip_pool_count, enable_validate_ip)
     await pool.load_proxies()
     return pool
+
+
+proxy_list = [
+    "10.138.3.188:3235",
+    "10.138.3.153:3235",
+    "10.138.3.152:3235",
+    "10.138.3.155:3235",
+    "10.138.3.150:3235"
+]
+
+
+async def random_get_proxy() -> IpInfoModel:
+    proxy_str = random.choice(proxy_list)
+    proxy_arr = proxy_str.split(':')
+    ip = proxy_arr[0]
+    port = proxy_arr[1]
+    ip_info_model = IpInfoModel(
+        ip=ip,
+        port=port,
+        user=None,
+        password=None,
+        expired_time_ts=None)
+    return ip_info_model
+
 
 
 if __name__ == '__main__':
