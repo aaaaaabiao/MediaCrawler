@@ -87,7 +87,7 @@ class WeiboCrawler(AbstractCrawler):
                 # Get the information and comments of the specified post
                 await self.get_specified_notes()
             elif self.crawler_type == "user":
-                await self.get_specified_user_note();
+                await self.get_specified_user_note()
             else:
                 pass
             utils.logger.info("[WeiboCrawler.start] Bilibili Crawler finished ...")

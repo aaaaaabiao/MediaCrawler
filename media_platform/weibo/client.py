@@ -187,6 +187,7 @@ class WeiboClient:
         uri = "/api/container/getIndex"
         container_id = f"230413{user_id}_-_WEIBO_SECOND_PROFILE_WEIBO"
         since_id = ""
+        year = '2024'
         while True:
             params = {
                 "containerid": container_id,
@@ -194,13 +195,30 @@ class WeiboClient:
                 "since_id": since_id,
             }
             ret = await self.get(uri, params)
-            notes.extend(ret['cards'])
-            utils.logger.info(f"[WeiboClient.get_note_info_by_user_id] since_id:{since_id}, total:{len(notes)}")
+            cards = ret['cards']
+            for card in cards:
+                if card['card_type'] == 9:
+                    try:
+                        blog_id = card['mblog']['id']
+                        time = card['mblog']['created_at']
+                        times = time.split(' ')
+                        year = times[len(times) - 1]
+                        note = await self.get_note_info_by_id(blog_id)
+                        comments = await self.get_note_comments(blog_id, -1)
+                        note['comments'] = comments
+                        notes.append(note)
+                        utils.logger.info(f"[WeiboClient.get_note_info_by_user_id] since_id:{since_id}, total:{len(notes)}")
+                        await asyncio.sleep(1)
+                    except Exception as e:
+                        utils.logger.info(
+                            f"[WeiboClient.get_note_info_by_user_id] exception:{e}")
             cardlistInfo = ret['cardlistInfo']
+            if year == "2020":
+                break
             if 'since_id' not in cardlistInfo.keys():
                 break
             since_id = cardlistInfo['since_id']
-            await asyncio.sleep(1.0)
+
         return {
             "user_id": user_id,
             "notes": notes
